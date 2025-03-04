@@ -9,6 +9,7 @@ const router = express.Router();
 router.get('/log', async (req, res) => {
     try{
         const id = req.query.id;
+        console.log(id);
         const newVisit = new visit({ attempted: new Date().getTime(), id: id });
         await newVisit.save();
         res.status(200).json({ message: `Visit recorded for ${id}` });
