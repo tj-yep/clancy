@@ -8,7 +8,7 @@ const guessRoutes = require('./routes/guessRoutes');
 const trafficRoutes = require('./routes/trafficRoutes');
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "*" })); // Allow requests from any domain
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 
