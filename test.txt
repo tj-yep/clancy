@@ -1,0 +1,3 @@
+curl -X GET http://who.is.moochie.ball.discofish.lol/traffic/log \
+     -H "Content-Type: application/json" \
+     -d '{"id":"test"}'
