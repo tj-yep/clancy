@@ -58,7 +58,6 @@ const logSchema = new mongoose.Schema({
       const newLog = new Log({
         ip: visitorIP,
         action: action || 'No action provided',
-        user: user || 'No user provided',
         referrer: referrer || 'No referrer provided',
         timestamp: new Date(),
         sessionId: sessionId || 'No sessionId provided',
