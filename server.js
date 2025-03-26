@@ -22,6 +22,8 @@ const logSchema = new mongoose.Schema({
   referrer: String,
   sessionId: String,
   pageUrl: String,
+  userID: String,
+  username: String,
   timestamp: {
     type: Date,
     default: Date.now,
@@ -36,37 +38,33 @@ const logSchema = new mongoose.Schema({
   
   
   // 4) Routes
-  
-  // POST /log: to save logs in the DB
   app.post('/log', async (req, res) => {
     try {
-      // 4a) Extract visitor IP
-      const visitorIP =
-        req.headers['x-forwarded-for'] ||
-        req.connection.remoteAddress ||
-        req.socket.remoteAddress ||
-        (req.connection.socket ? req.connection.socket.remoteAddress : null);
-  
-      // 4b) Extract action from request body
-      const { action } = req.body;
-      const { referrer } = req.body;
-      const { sessionId } = req.body;
-      const { pageUrl } = req.body;
-
-  
-      // 4c) Create and save a new log entry
+      // Improved IP extraction with proper proxy handling
+      const visitorIP = (req.headers['x-forwarded-for'] || '')
+        .split(',')[0]  // Get the first IP in case of multiple proxies
+        .trim() || 
+        req.socket.remoteAddress || 
+        'Unknown';
+        
+      // Remove IPv6 prefix if present
+      const cleanIP = visitorIP.replace(/^::ffff:/, '');
+      
+      // Rest of your code
+      const { action, referrer, sessionId, pageUrl, userID, username } = req.body;
+      
       const newLog = new Log({
-        ip: visitorIP,
+        ip: cleanIP,  // Store the cleaned IP
         action: action || 'No action provided',
         referrer: referrer || 'No referrer provided',
         timestamp: new Date(),
         sessionId: sessionId || 'No sessionId provided',
         pageUrl: pageUrl || 'No pageUrl provided',
+        userID: userID || 'No userID provided',
+        username: username || 'No username provided',
       });
-  
+      
       await newLog.save();
-  
-      // 4d) Respond to the client
       res.status(200).json({ status: 'OK', message: 'Log recorded' });
     } catch (error) {
       console.error('Error saving log:', error);
@@ -82,7 +80,6 @@ const logSchema = new mongoose.Schema({
   app.get('/logs', async (req, res) => {
     // Retrieve secret token from query parameter (e.g. /logs?secret=...)
     const providedSecret = req.query.secret;
-    
     // Compare to environment variable
     if (!providedSecret || providedSecret !== process.env.LOGS_SECRET) {
       // If secret is missing or invalid, deny access
