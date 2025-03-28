@@ -8,6 +8,7 @@ const app = express();
 app.use(cors({ origin: "*" })); // Allow requests from any domain
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
+app.set('trust proxy', true);
 
 // Replace this with your actual MongoDB connection string
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -24,6 +25,7 @@ const logSchema = new mongoose.Schema({
   pageUrl: String,
   userID: String,
   username: String,
+  isMobile: String,
   timestamp: {
     type: Date,
     default: Date.now,
@@ -62,6 +64,7 @@ const logSchema = new mongoose.Schema({
         pageUrl: pageUrl || 'No pageUrl provided',
         userID: userID || 'No userID provided',
         username: username || 'No username provided',
+        isMobile: req.body.isMobile || 'not provided',
       });
       
       await newLog.save();
@@ -97,7 +100,7 @@ const logSchema = new mongoose.Schema({
 
   // Simple home route
   app.get('/', (req, res) => {
-    res.send('moochies Logging API with MongoDB is running...');
+    res.send('moochies Logging API is running...');
   });
   
   // Start the server
